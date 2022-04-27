@@ -31,42 +31,44 @@
     </nav>
 
     <div class="container">
-        <div class="col-md-6">
-            <table class="table" id="table">
-                <thead class="table-dark text-center">
-                    <tr>
-                        <th>X</th>
-                        <th>Y</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody class="text-center" id="table-body">
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table" id="table">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th>X</th>
+                            <th>Y</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center" id="table-body">
 
-                </tbody>
-            </table>
-            <form class="coordinate-form" onsubmit="event.preventDefault(); addRow();">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-outline">
-                            <label class="form-label" for="x-input">X Coordinate</label>
-                            <input type="number" id="x-input" class="form-control" required/>
+                    </tbody>
+                </table>
+                <form class="coordinate-form" onsubmit="event.preventDefault(); addRow();">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-outline">
+                                <label class="form-label" for="x-input">X Coordinate</label>
+                                <input type="number" id="x-input" class="form-control" required/>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-outline">
+                                <label class="form-label" for="y-input">Y Coordinate</label>
+                                <input type="number" id="y-input" class="form-control" required/>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2 mt-2">
+                            <button class="btn btn-success" type="submit">Add Point</button>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-outline">
-                            <label class="form-label" for="y-input">Y Coordinate</label>
-                            <input type="number" id="y-input" class="form-control" required/>
-                        </div>
-                    </div>
-                    <div class="d-grid gap-2 mt-2">
-                        <button class="btn btn-success" type="submit">Add Point</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="col-md-6">
-
-        </div>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <img id="plot" class="w-100 h-100"/>
+            </div>
+         </div>
     </div>
 
     <script>
@@ -82,44 +84,64 @@
 
                 var row = table.insertRow(length);
                 row.setAttribute('id', `point-${index}`)
-                index++;
-
-                interpolate();
 
                 var x = row.insertCell(0);
                 x.innerHTML = xInput.value;
                 x.setAttribute('class', 'vertical-center');
+                x.setAttribute('id', `point-${index}-x`)
 
                 var y = row.insertCell(1);
                 y.innerHTML = yInput.value;
                 y.setAttribute('class', 'vertical-center');
+                y.setAttribute('id', `point-${index}-y`)
 
                 var action = row.insertCell(2);
                 action.innerHTML = `<button class="btn btn-danger text-center" type="button" onclick="removeRow(${index})">Remove Point</button>`;
 
                 xInput.value = "";
                 yInput.value = "";
+                index++;
+
+                interpolate();
             }
         }
 
         function removeRow(index) {
             var row = document.getElementById(`point-${index}`);
             row.remove();
+            interpolate();
         }
 
         function interpolate() {
+            var xCoordinates = [];
+            var yCoordinates = [];
+
+            for (var i = 0; i <= index; i++) {
+                var x = document.getElementById(`point-${i}-x`)
+                var y = document.getElementById(`point-${i}-y`)
+
+                if (x && y) {
+                    x = +x.innerHTML;
+                    y = +y.innerHTML;
+                    xCoordinates.push(x);
+                    yCoordinates.push(y)
+                }
+            }
+
             $.ajax({
                 url: "/interpolate",
                 type: "POST",
                 data: JSON.stringify(
                     {
-                        x: [-5, -1, 0, 2],
-                        y: [-2, 6, 1, 3]
+                        x: xCoordinates,
+                        y: yCoordinates
                     }
                 ),
                 contentType: "application/json; charset=utf-8",
                 success: function(response) {
-                    console.log(response);
+                    var plot = document.getElementById("plot");
+                    var srcValue = `data:image/png;base64,${response}`;
+                    plot.setAttribute("src", srcValue);
                 }
             });
         }
