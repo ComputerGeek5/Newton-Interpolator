@@ -68,6 +68,9 @@
             <div class="col-md-6">
                 <img id="plot" class="w-100 h-100"/>
             </div>
+            <div class="row mt-5">
+                <p id="polynomial"></p>
+            </div>
          </div>
     </div>
 
@@ -140,8 +143,10 @@
                 contentType: "application/json; charset=utf-8",
                 success: function(response) {
                     var plot = document.getElementById("plot");
-                    var srcValue = `data:image/png;base64,${response}`;
+                    var coefficients = document.getElementById("polynomial");
+                    var srcValue = `data:image/png;base64,${response.plot}`;
                     plot.setAttribute("src", srcValue);
+                    coefficients.innerHTML = `<em><b>Polynomial: </b></em>${response.polynomial}`;
                 }
             });
         }

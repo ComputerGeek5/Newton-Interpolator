@@ -1,7 +1,7 @@
 import base64
 from io import BytesIO
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -20,13 +20,13 @@ def interpolate():
     np.set_printoptions(suppress=True)
 
     # get the divided difference coefficient
-    a_s = divided_difference(x, y)[0, :]
+    coefficients = divided_difference(x, y)[0, :]
 
     # evaluate on new data points
     x_left = np.amin(x)
     x_right = np.amax(x) + 0.1
     x_new = np.arange(x_left, x_right, .1)
-    y_new = newton_polynomial(a_s, x, x_new)
+    y_new = newton_polynomial(coefficients, x, x_new)
 
     plt.figure(figsize=(12, 8))
     plt.title('Newton Interpolation')
@@ -37,12 +37,27 @@ def interpolate():
 
     buf = BytesIO()
     plt.savefig(buf, format="png")
-    data = base64.b64encode(buf.getbuffer()).decode("ascii")
-    return data
+    plot = base64.b64encode(buf.getbuffer()).decode("ascii")
+    data = {
+        "plot": plot,
+        "polynomial": polynomial(coefficients, x)
+    }
+    return jsonify(data)
 
-    # plot_image_name = 'plot.png'
-    # plt.savefig(plot_image_name)
-    # return str(a_s)
+def polynomial(coefficients, x):
+    polynomial = ""
+    for index in range(len(coefficients)):
+        if index != 0:
+            polynomial += " + "
+
+        coefficient = coefficients[index]
+        polynomial += str(coefficient)
+
+        for j in range(index):
+            xValue = x[j]
+            polynomial += f"(x - {xValue})"
+
+    return polynomial
 
 def divided_difference(x, y):
     n = len(y)
