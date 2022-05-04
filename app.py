@@ -24,8 +24,8 @@ def interpolate():
 
     # evaluate on new data points
     x_left = np.amin(x)
-    x_right = np.amax(x) + 0.1
-    x_new = np.arange(x_left, x_right, .1)
+    x_right = np.amax(x) + 0.09
+    x_new = np.arange(x_left, x_right, 0.1)
     y_new = newton_polynomial(coefficients, x, x_new)
 
     plt.figure(figsize=(12, 8))
@@ -55,23 +55,24 @@ def polynomial(coefficients, x):
 
         for j in range(index):
             xValue = x[j]
-            polynomial += f"(x - {xValue})"
+            operation = f"+ {abs(xValue)}" if xValue < 0 else f"- {xValue}"
+            polynomial += f"(x {operation})"
 
     return polynomial
 
 def divided_difference(x, y):
     n = len(y)
-    coefficient = np.zeros([n, n])
+    coefficients = np.zeros([n, n])
 
     # the first column is y
-    coefficient[:, 0] = y
+    coefficients[:, 0] = y
 
     for j in range(1, n):
         for i in range(n - j):
-            coefficient[i][j] = \
-                (coefficient[i + 1][j - 1] - coefficient[i][j - 1]) / (x[i + j] - x[i])
+            coefficients[i][j] = \
+                (coefficients[i + 1][j - 1] - coefficients[i][j - 1]) / (x[i + j] - x[i])
 
-    return coefficient
+    return coefficients
 
 def newton_polynomial(coefficient, x_data, x):
     n = len(x_data) - 1
