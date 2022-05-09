@@ -1,1 +1,1 @@
-web: bundle exec thin start -p 5000
+web: gunicorn --bind 0.0.0.0:$PORT app:app
