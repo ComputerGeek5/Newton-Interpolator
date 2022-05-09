@@ -6,7 +6,7 @@ EXPOSE 5000
 
 COPY requirements.txt requirements.txt
 
-#CMD ["pip", "install", "--upgrade", "pip"]
+CMD ["pip", "install", "--upgrade", "pip"]
 
 RUN pip install -r requirements.txt
 
