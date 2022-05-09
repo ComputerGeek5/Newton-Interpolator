@@ -10,4 +10,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD [ "python3", "-m" , "flask", "run"]
+CMD [ "python", "-m" , "flask", "run"]
