@@ -6,10 +6,10 @@ EXPOSE 5000
 
 COPY requirements.txt requirements.txt
 
-CMD [ "python", "-m", "pip", "install", "--upgrade", "pip"]
+CMD ["pip", "install", "--upgrade", "pip"]
 
 RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD [ "python", "-m" , "flask", "run"]
+CMD ["python", "-m" , "flask", "run"]
